@@ -1,118 +1,85 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
-  Text,
-  useColorScheme,
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import MapView, {EdgePadding, LatLng, Polygon} from 'react-native-maps';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const coordinates: LatLng[] = [
+  {latitude: 47.624596, longitude: -122.355438},
+  {latitude: 47.624596, longitude: -122.347595},
+  {latitude: 47.618609, longitude: -122.347595},
+  {latitude: 47.618609, longitude: -122.355438},
+];
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+const styles = StyleSheet.create({
+  container: {
+    padding: 8,
+  },
+  map: {
+    height: 240,
+    width: 360,
+  },
+});
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const mapPadding: EdgePadding = {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 180,
+  };
+  const edgePadding: EdgePadding = {
+    top: 0,
+    right: 0,
+    bottom: 120,
+    left: 0,
   };
 
+  const mapRef = React.useRef<MapView>(null);
+
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
+    <SafeAreaView>
+      <StatusBar />
       <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+        style={styles.container}
+        contentInsetAdjustmentBehavior="automatic">
+        <View style={styles.container}>
+          <MapView
+            ref={mapRef}
+            provider={'google'}
+            style={styles.map}
+            onMapReady={() => {
+              mapRef.current?.fitToCoordinates(coordinates, {
+                animated: false,
+                edgePadding: edgePadding,
+              });
+
+              /*
+              // if I change code to this, the issue doesn't occur
+              setTimeout(
+                () =>
+                  mapRef.current?.fitToCoordinates(coordinates, {
+                    animated: false,
+                    edgePadding: edgePadding,
+                  }),
+                1000,
+              );*/
+            }}
+            mapPadding={mapPadding}>
+            <Polygon
+              coordinates={coordinates}
+              fillColor={'rgba(255,0,0,0.7)'}
+            />
+          </MapView>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
